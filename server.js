@@ -8,6 +8,7 @@ var corsOptions = {
   origin: "*",
 };
 
+
 app.use(cors(corsOptions));
 app.options("*", cors());
 
