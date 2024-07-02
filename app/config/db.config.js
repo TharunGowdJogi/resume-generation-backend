@@ -5,9 +5,9 @@ const db_name = process.env.DB_NAME;
 
 module.exports = {
   HOST: "localhost",
-  USER: "root",
-  PASSWORD: "",
-  DB: "ResumeGeneration",
+  USER: "phpmyadmin",
+  PASSWORD: "12345678",
+  DB: "resume_generator",
   dialect: "mysql",
   pool: {
     max: 5,
