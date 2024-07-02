@@ -6,89 +6,88 @@ const { encrypt, getSalt, hashPassword } = require("../authentication/crypto");
 
 // Create and Save a new User
 exports.create = async (req, res) => {
-  // Validate request
-  if (req.body.firstName === undefined) {
-    const error = new Error("First name cannot be empty for user!");
-    error.statusCode = 400;
-    throw error;
-  } else if (req.body.lastName === undefined) {
-    const error = new Error("Last name cannot be empty for user!");
-    error.statusCode = 400;
-    throw error;
-  } else if (req.body.email === undefined) {
-    const error = new Error("Email cannot be empty for user!");
-    error.statusCode = 400;
-    throw error;
-  } else if (req.body.password === undefined) {
-    const error = new Error("Password cannot be empty for user!");
-    error.statusCode = 400;
-    throw error;
-  }
+  try {
+    // Validate request
+    const {
+      first_name,
+      last_name,
+      mobile,
+      address,
+      email,
+      linkedin_url,
+      website_url,
+      password,
+      summary,
+    } = req.body;
 
-  // find by email
-  await User.findOne({
-    where: {
-      email: req.body.email,
-    },
-  })
-    .then(async (data) => {
-      if (data) {
-        return "This email is already in use.";
-      } else {
-        console.log("email not found");
+    if (!first_name || !last_name || !email || !password) {
+      return res.status(400).send({
+        message: "First name, last name, email, and password are required!",
+      });
+    }
 
-        let salt = await getSalt();
-        let hash = await hashPassword(req.body.password, salt);
+    // Check if email already exists
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).send({ message: "This email is already in use." });
+    }
 
-        // Create a User
-        const user = {
-          id: req.body.id,
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          email: req.body.email,
-          password: hash,
-          salt: salt,
-        };
+    // Generate salt and hash password
+    const salt = await getSalt();
+    const hash = await hashPassword(password, salt);
 
-        // Save User in the database
-        await User.create(user)
-          .then(async (data) => {
-            // Create a Session for the new user
-            let userId = data.id;
+    // Create a User object
+    const user = {
+      first_name,
+      last_name,
+      mobile,
+      address,
+      email,
+      linkedin_url,
+      website_url,
+      password: hash,
+      salt,
+      summary,
+    };
 
-            let expireTime = new Date();
-            expireTime.setDate(expireTime.getDate() + 1);
+    // Save User in the database
+    const newUser = await User.create(user);
 
-            const session = {
-              email: req.body.email,
-              userId: userId,
-              expirationDate: expireTime,
-            };
-            await Session.create(session).then(async (data) => {
-              let sessionId = data.id;
-              let token = await encrypt(sessionId);
-              let userInfo = {
-                email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                id: user.id,
-                token: token,
-              };
-              res.send(userInfo);
-            });
-          })
-          .catch((err) => {
-            console.log(err);
-            res.status(500).send({
-              message:
-                err.message || "Some error occurred while creating the User.",
-            });
-          });
-      }
-    })
-    .catch((err) => {
-      return err.message || "Error retrieving User with email=" + email;
+    // Create a Session for the new user
+    const expireTime = new Date();
+    expireTime.setDate(expireTime.getDate() + 1);
+
+    const session = {
+      email: newUser.email,
+      userId: newUser.id,
+      expirationDate: expireTime,
+    };
+
+    const newSession = await Session.create(session);
+
+    const sessionId = newSession.id;
+    const token = await encrypt(sessionId);
+
+    const userInfo = {
+      id: newUser.id,
+      first_name: newUser.first_name,
+      last_name: newUser.last_name,
+      mobile: newUser.mobile,
+      address: newUser.address,
+      email: newUser.email,
+      linkedin_url: newUser.linkedin_url,
+      website_url: newUser.website_url,
+      summary: newUser.summary,
+      token: token,
+    };
+
+    res.send(userInfo);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: err.message || "Some error occurred while creating the User.",
     });
+  }
 };
 
 // Retrieve all Users from the database.
@@ -141,10 +140,9 @@ exports.findByEmail = (req, res) => {
       if (data) {
         res.send(data);
       } else {
-        res.send({ email: "not found" });
-        /*res.status(404).send({
+        res.status(404).send({
           message: `Cannot find User with email=${email}.`
-        });*/
+        });
       }
     })
     .catch((err) => {
