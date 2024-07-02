@@ -9,7 +9,7 @@ const scryptOptions = {
   r: 8,
   p: 1,
 };
-const secretKey = Buffer.from(process.env.SECRET_KEY || "1234567890", "base64");
+const secretKey = crypto.randomBytes(32);
 
 getSalt = async () => {
   return new Promise((fulfill, reject) => {

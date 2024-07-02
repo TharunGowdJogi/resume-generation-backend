@@ -2,15 +2,17 @@ const db = require("../models");
 const { authenticate } = require("../authentication/authentication");
 const User = db.user;
 const Session = db.session;
-const Op = db.Sequelize.Op;
 const { encrypt } = require("../authentication/crypto");
 
 exports.login = async (req, res) => {
-  let { userId } = await authenticate(req, res, "credentials");
+  let { userId } = await authenticate(req, res);
 
   if (userId !== undefined) {
     let user = {};
-    await User.findByPk(userId).then((data) => {
+    await User.findByPk(userId, {
+      attributes: {
+        exclude: ["password", "salt"],
+      }}).then((data) => {
       user = data;
     });
 
@@ -26,10 +28,7 @@ exports.login = async (req, res) => {
       let sessionId = data.id;
       let token = await encrypt(sessionId);
       let userInfo = {
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        id: user.id,
+        ...user.dataValues,
         token: token,
       };
       res.send(userInfo);
