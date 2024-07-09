@@ -9,7 +9,7 @@ module.exports = (app) => {
     router.get("/resume/", Resume.findAll);
 
     // Retrieve a Resume by user ID
-    router.get("/resumes/user/:user_id", Resume.findByUserId);
+    router.get("/resume/user/:user_id", Resume.findByUserId);
   
     // Retrieve a single resume with id
     router.get("/resume/:id", Resume.findOne);
