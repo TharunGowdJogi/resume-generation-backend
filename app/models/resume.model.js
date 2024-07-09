@@ -13,6 +13,38 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      first_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      last_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      mobile: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      address: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      linkedin_url: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      website_url: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      summary: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
     });
   
     return Resume;

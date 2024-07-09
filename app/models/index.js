@@ -33,10 +33,10 @@ db.session.belongsTo(db.user,{ as: "user",foreignKey: "user_id" });
 db.user.hasMany(db.resume, { as: "resumes", foreignKey: "user_id" });
 db.resume.belongsTo(db.user, { as: "user", foreignKey: "user_id" });
 
-db.resume.hasMany(db.education, { as: "educations", foreignKey: "resume_id" });
+db.resume.hasMany(db.education, { as: "education", foreignKey: "resume_id" });
 db.education.belongsTo(db.resume, { as: "resume", foreignKey: "resume_id" });
 
-db.resume.hasMany(db.employment, { as: "employments", foreignKey: "resume_id" });
+db.resume.hasMany(db.employment, { as: "employment", foreignKey: "resume_id" });
 db.employment.belongsTo(db.resume, { as: "resume", foreignKey: "resume_id" });
 
 db.resume.hasMany(db.honor, { as: "honors", foreignKey: "resume_id" });
