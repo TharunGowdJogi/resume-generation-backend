@@ -24,6 +24,7 @@ app.get("/", (req, res) => {
 
 require("./app/routes/auth.routes.js")(app);
 require("./app/routes/user.routes.js")(app);
+require("./app/routes/resume.routes.js")(app);
 
 const PORT = process.env.PORT || 3200;
 if (process.env.NODE_ENV !== "test") {
