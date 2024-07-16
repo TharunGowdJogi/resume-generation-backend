@@ -16,6 +16,9 @@ module.exports = (app) => {
 
     // Delete a Resume with id
     router.delete("/resumes/:id", Resume.delete);
+
+    // Update a Resume by id
+    router.put("/resume/:id", Resume.update);
   
     // Delete all Resumes
     router.delete("/resumes/", Resume.deleteAll);

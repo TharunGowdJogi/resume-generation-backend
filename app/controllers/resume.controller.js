@@ -12,7 +12,9 @@ const updateOrCreateItems = async (resume_id, dataItems, model, transaction) => 
     await model.destroy({ where: { resume_id: resume_id }, transaction });
     await Promise.all(dataItems.map(data => {
       data.resume_id = resume_id;
-      return model.create(data, { transaction });
+      const { skill_id ,employment_id, project_id, education_id, honor_id, ...new_data } = data;
+      new_data.resume_id = resume_id;
+      return model.create(new_data, { transaction });
     }));
   };
   
@@ -44,7 +46,7 @@ exports.create = async (req, res) => {
     await transaction.commit();
     res.send({
         message:  "Resume Generated Successfully!",
-        id: resume.id,
+        resume_id: resume.resume_id,
         ai_generated_url: resume.ai_generated_url
       });
   } catch (error) {
@@ -172,6 +174,51 @@ exports.delete = async (req, res) => {
       await transaction.rollback();
       res.status(500).send({
         message: error.message || "Some error occurred while removing all resumes."
+      });
+    }
+  };
+
+  exports.update = async (req, res) => {
+    const id = req.params.id;
+    const { user_info,user_id, skills, employment, education, honors, projects } = req.body;
+    const transaction = await sequelize.transaction();
+    try {
+      const resume = await Resume.findByPk(id);
+      if (!resume) {
+        await transaction.rollback();
+        return res.status(404).send({ message: `Cannot update Resume with id=${id}. Resume was not found!` });
+      }
+      await Resume.update({ user_id,
+        email: user_info.email,
+        first_name: user_info.first_name,
+        last_name: user_info.last_name,
+        phone_number: user_info.phone_number,
+        address: user_info.address,
+        linkedin_url: user_info.linkedin_url,
+        portfolio: user_info.portfolio,
+        professional_summary: user_info.professional_summary,
+        mobile: user_info.mobile,
+      },{
+        where: { resume_id: id },
+        transaction
+      });
+      await updateOrCreateItems(resume.resume_id, skills, Skill, transaction);
+      await updateOrCreateItems(resume.resume_id, employment, Employment, transaction);
+      await updateOrCreateItems(resume.resume_id, education, Education, transaction);
+      await updateOrCreateItems(resume.resume_id, honors, Honor, transaction);
+      await updateOrCreateItems(resume.resume_id, projects, Project, transaction);
+  
+      await transaction.commit();
+      res.send({
+          message:  "Resume Updated Successfully!",
+          resume_id: resume.resume_id,
+          ai_generated_url: resume.ai_generated_url
+        });
+    } catch (error) {
+      console.log("error",error);
+      await transaction.rollback();
+      res.status(500).send({
+        message: error.message || "Some error occurred while generating the Resume."
       });
     }
   };
