@@ -10,6 +10,9 @@ module.exports = (app) => {
 
     // Retrieve a Resume by user ID
     router.get("/resume/user/:user_id", Resume.findByUserId);
+
+    // Retrieve a Resume of user by categories
+    router.get("/resume/allUserResumesByCategory/user/:user_id", Resume.findAllUserResumesByCategory);
   
     // Retrieve a single resume with id
     router.get("/resume/:id", Resume.findOne);
