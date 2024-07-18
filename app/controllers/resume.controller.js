@@ -104,6 +104,47 @@ exports.findByUserId = async (req, res) => {
   }
 };
 
+exports.findAllUserResumesByCategory = async (req, res) => {
+  try {
+    const user_id = req.params.user_id; // Assuming user ID is available in the request object
+
+    // Retrieve all resumes of the user
+    const resumes = await Resume.findAll({
+      where: { user_id: user_id },
+      include: [
+        { model: Education, as: 'education' },
+        { model: Project, as: 'projects' },
+        { model: Employment, as: 'employment' },
+        { model: Honor, as: 'honors' },
+        { model: Skill, as: 'skills' }
+      ]
+    });
+
+    // Combine all educations, projects, employments, honors, and skills into arrays
+    const combinedData = {
+      education: [],
+      projects: [],
+      employment: [],
+      honors: [],
+      skills: []
+    };
+
+    resumes.forEach(resume => {
+      combinedData.education.push(...resume.education);
+      combinedData.projects.push(...resume.projects);
+      combinedData.employment.push(...resume.employment);
+      combinedData.honors.push(...resume.honors);
+      combinedData.skills.push(...resume.skills);
+    });
+
+    // Send the combined data in the response
+    res.status(200).json(combinedData);
+  } catch (error) {
+    console.error('Error retrieving user resumes:', error);
+    res.status(500).json({ error: 'An error occurred while retrieving user resumes' });
+  }
+};
+
 exports.findOne = async (req, res) => {
     const id = req.params.id;
   
