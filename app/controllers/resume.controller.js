@@ -317,3 +317,19 @@ exports.deleteAll = async (req, res) => {
     });
   }
 };
+
+exports.viewResume = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const resume = await Resume.findByPk(id);
+
+    if (!resume || !resume.ai_generated_url) {
+      return res.status(404).json({ message: 'Resume not found or PDF not generated.' });
+    }
+    const pdfPath = path.join(__dirname, '../../generated_resumes', resume.ai_generated_url);
+    res.sendFile(pdfPath);
+  } catch (error) {
+    console.error('Error fetching PDF:', error);
+    res.status(500).json({ message: 'Failed to fetch PDF.' });
+  }
+};
