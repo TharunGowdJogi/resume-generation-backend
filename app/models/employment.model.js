@@ -40,11 +40,7 @@ module.exports = (sequelize, Sequelize) => {
       country: {
         type: Sequelize.STRING,
         allowNull: true,
-      },
-      details: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
+      }
     }, {
       hooks: {
         beforeCreate: (employment, options) => {
