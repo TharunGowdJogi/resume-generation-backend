@@ -12,6 +12,18 @@ const ResumeEducation = db.resume_education;
 const ResumeHonor = db.resume_honor;
 const ResumeProject = db.resume_project;
 const { sequelize } = db;
+const fs = require('fs');
+const PDFDocument = require('pdfkit');
+const { CohereClient } = require('cohere-ai');
+
+require('dotenv').config();
+
+const cohereKey = process.env.COHERE_KEY || "";
+
+const cohere = new CohereClient({
+  token: cohereKey,
+})
+const pdf = require('pdf-parse');
 
 const findOrCreateItem = async (model, data, userId, transaction) => {
   const { skill_id, employment_id, project_id, education_id, honor_id, ...searchCriteria } = data;
@@ -95,11 +107,103 @@ const updateOrCreateJunctionTable = async (resumeId, userId, dataItems, model, j
   }
 };
 
+function generateRandomNumber(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Function to convertTo PDF
+const convertToPDF = (content, filePath) => {
+  return new Promise((resolve, reject) => {
+      const doc = new PDFDocument();
+      const stream = fs.createWriteStream(filePath);
+
+      doc.pipe(stream);
+      doc.text(content);
+      doc.end();
+
+      stream.on('finish', () => {
+          resolve(filePath);
+      });
+
+      stream.on('error', (err) => {
+          reject(err);
+      });
+  });
+};
+
+const readFileAsync = (path) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, (err, data) => {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  });
+};
+
+const generateAndStoreResume = async (body) => {
+  try {
+    // Read the templates PDF file
+    const templatesPath = path.join(__dirname, '../../generated_resumes/templates.pdf');
+    const dataBuffer = await readFileAsync(templatesPath);
+    const pdfData = await pdf(dataBuffer);
+
+    // Extract text content from the templates
+    const templateContent = pdfData.text;
+
+    // Construct the prompt
+    const prompt = `
+      Using one of the following resume templates.
+      
+      Resume Templates:
+      ${templateContent}
+      
+      Candidate Information:
+      create a resume for, 
+      ${JSON.stringify(body)}
+      
+      Please generate a professional resume using one of the above templates and the provided information.
+    `;
+
+    console.log("prompt",prompt)
+
+    // Use Cohere AI tool to generate the resume content
+    const response = await cohere.generate({
+      model: "command",
+      prompt: prompt,
+      max_tokens: 10000, // Increased for longer resumes
+      temperature: 0.8,
+    });
+
+    console.log("response", JSON.stringify(response));
+    if (!response.generations || response.generations.length === 0) {
+      throw new Error("Failed to generate resume content.");
+    }
+
+    const generatedText = response.generations[0].text;
+
+    const randomNumber = generateRandomNumber(1, 1000);
+    console.log("generated text:", generatedText);
+    const filePath = path.join(__dirname, '../../generated_resumes', `resume_${randomNumber}.pdf`);
+
+    // Generate and save PDF
+    await convertToPDF(generatedText, filePath);
+
+    console.log('PDF Generated:', filePath);
+    return { url: `resume_${randomNumber}.pdf` };
+  } catch (error) {
+    console.error('Error generating resume:', error);
+    throw error;
+  }
+};
+
+
 exports.create = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
     const { user_info, user_id, skills, employment, education, honors, projects } = req.body;
-
+    const { url } = await generateAndStoreResume(req.body);
     const resume = await Resume.create({
       user_id,
       email: user_info.email,
@@ -111,7 +215,7 @@ exports.create = async (req, res) => {
       portfolio: user_info.portfolio,
       professional_summary: user_info.professional_summary,
       mobile: user_info.mobile,
-      ai_generated_url: "dummy.pdf"
+      ai_generated_url: url
     }, { transaction });
 
     await updateOrCreateJunctionTable(resume.resume_id, user_id, skills, Skill, ResumeSkill, transaction);
