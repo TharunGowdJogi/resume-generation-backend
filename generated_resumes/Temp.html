@@ -1,0 +1,32 @@
+<!-- template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Resume</title>
+</head>
+<body>
+  <div class="resume">
+    <h1>{{firstName}} {{lastName}}</h1>
+    <p>{{email}}</p>
+    <p>{{phone}}</p>
+    <h2>Professional Summary</h2>
+    <p>{{professionalSummary}}</p>
+    <h2>Skills</h2>
+    <ul>
+      {{#each skills}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ul>
+    <h2>Employment</h2>
+    <ul>
+      {{#each employment}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ul>
+    <!-- Add other sections similarly -->
+  </div>
+</body>
+</html>

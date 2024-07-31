@@ -145,7 +145,7 @@ const readFileAsync = (path) => {
 const generateAndStoreResume = async (body) => {
   try {
     // Read the templates PDF file
-    const templatesPath = path.join(__dirname, '../../generated_resumes/templates.pdf');
+    const templatesPath = path.join(__dirname, '../../generated_resumes/Temp.html');
     const dataBuffer = await readFileAsync(templatesPath);
     const pdfData = await pdf(dataBuffer);
 
