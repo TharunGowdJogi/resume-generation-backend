@@ -291,7 +291,7 @@ exports.update = async (req, res) => {
 // Main functions
 exports.findAll = async (req, res) => {
   try {
-    const data = await Resume.findAll({ include: includeModels });
+    const data = await Resume.findAll({ where: { is_deleted: false }, include: includeModels });
     const cleanedData = data.map(cleanResume);
     res.send(cleanedData);
   } catch (err) {
@@ -304,7 +304,7 @@ exports.findByUserId = async (req, res) => {
 
   try {
     const resumes = await Resume.findAll({
-      where: { user_id: user_id },
+      where: { user_id: user_id, is_deleted: false  },
       include: includeModels
     });
 
@@ -361,7 +361,7 @@ exports.findOne = async (req, res) => {
   const id = req.params.id;
 
   try {
-    const resume = await Resume.findByPk(id, { include: includeModels });
+    const resume = await Resume.findByPk(id, { include: includeModels, is_deleted: false });
 
     if (!resume) {
       return res.status(404).send({ message: "Resume not found" });
@@ -382,42 +382,47 @@ exports.delete = async (req, res) => {
     const resume = await Resume.findByPk(id);
     if (!resume) {
       await transaction.rollback();
-      return res.status(404).send({ message: `Cannot delete Resume with id=${id}. Resume was not found!` });
+      return res
+        .status(404)
+        .send({
+          message: `Cannot delete Resume with id=${id}. Resume was not found!`,
+        });
     }
 
-    await ResumeSkill.destroy({ where: { resume_id: id }, transaction });
-    await ResumeEmployment.destroy({ where: { resume_id: id }, transaction });
-    await ResumeEducation.destroy({ where: { resume_id: id }, transaction });
-    await ResumeHonor.destroy({ where: { resume_id: id }, transaction });
-    await ResumeProject.destroy({ where: { resume_id: id }, transaction });
-    await Resume.destroy({ where: { resume_id: id }, transaction });
+    // Instead of deleting the resume, update the is_deleted field to true
+    await Resume.update(
+      { is_deleted: true },
+      { where: { resume_id: id }, transaction }
+    );
 
     await transaction.commit();
     res.send({ message: "Resume was deleted successfully!" });
   } catch (error) {
     await transaction.rollback();
     res.status(500).send({
-      message: error.message || "Could not delete Resume with id=" + id
+      message: error.message || "Could not delete Resume with id=" + id,
     });
   }
 };
+
 
 exports.deleteAll = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
-    await ResumeSkill.destroy({ where: {}, transaction });
-    await ResumeEmployment.destroy({ where: {}, transaction });
-    await ResumeEducation.destroy({ where: {}, transaction });
-    await ResumeHonor.destroy({ where: {}, transaction });
-    await ResumeProject.destroy({ where: {}, transaction });
-    await Resume.destroy({ where: {}, transaction });
+    // Set is_deleted to true for all resumes
+    await Resume.update(
+      { is_deleted: true },
+      { where: {}, transaction }
+    );
+
     await transaction.commit();
-    res.send({ message: "All Resumes were deleted successfully!" });
+    res.send({ message: "All Resumes were marked as deleted successfully!" });
   } catch (error) {
     await transaction.rollback();
     res.status(500).send({
-      message: error.message || "Some error occurred while removing all resumes."
+      message:
+        error.message || "Some error occurred while marking all resumes as deleted.",
     });
   }
 };

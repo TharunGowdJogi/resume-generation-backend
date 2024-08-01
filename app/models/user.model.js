@@ -47,6 +47,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.TEXT,
       allowNull: true,
     },
+    is_admin: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: 0,
+    }
   });
 
   return User;

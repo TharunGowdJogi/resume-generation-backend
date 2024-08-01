@@ -30,6 +30,7 @@ db.resume_employment = require("./resume_employment.model.js")(sequelize, Sequel
 db.resume_honor = require("./resume_honor.model.js")(sequelize, Sequelize);
 db.resume_project = require("./resume_project.model.js")(sequelize, Sequelize);
 db.resume_skill = require("./resume_skill.model.js")(sequelize, Sequelize);
+db.resume_comment = require("./resume_comment.model.js")(sequelize, Sequelize);
 
 // foreign key for session
 db.user.hasMany(db.session,{ as: "session",foreignKey: "user_id" });
@@ -68,5 +69,11 @@ db.project.belongsToMany(db.resume, { through: db.resume_project, foreignKey: "p
 
 db.resume.belongsToMany(db.skill, { through: db.resume_skill, foreignKey: "resume_id", otherKey: "skill_id", as: "skills" });
 db.skill.belongsToMany(db.resume, { through: db.resume_skill, foreignKey: "skill_id", otherKey: "resume_id", as: "resumes" });
+
+db.resume.hasMany(db.resume_comment,{ as: "comments" , foreignKey: "resume_id" });
+db.resume_comment.belongsTo(db.resume,{ as: "resume" , foreignKey: "resume_id" });
+
+db.user.hasMany(db.resume_comment,{ as: "comments" , foreignKey: "user_id" });
+db.resume_comment.belongsTo(db.user,{ as: "user" ,foreignKey: "user_id" });
 
 module.exports = db;
