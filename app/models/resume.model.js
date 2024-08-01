@@ -45,6 +45,11 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.TEXT,
         allowNull: true,
       },
+      is_deleted: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      }
     });
   
     return Resume;

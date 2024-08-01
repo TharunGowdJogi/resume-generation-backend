@@ -18,6 +18,7 @@ exports.create = async (req, res) => {
       website_url,
       password,
       summary,
+      is_admin
     } = req.body;
 
     if (!first_name || !last_name || !email || !password) {
@@ -48,6 +49,7 @@ exports.create = async (req, res) => {
       password: hash,
       salt,
       summary,
+      is_admin
     };
 
     // Save User in the database
@@ -79,6 +81,7 @@ exports.create = async (req, res) => {
       website_url: newUser.website_url,
       summary: newUser.summary,
       token: token,
+      is_admin: newUser.is_admin
     };
 
     res.send(userInfo);
@@ -157,7 +160,7 @@ exports.update = (req, res) => {
   const id = req.params.id;
 
   User.update(req.body, {
-    where: { id: id },
+    where: { user_id: id },
   })
     .then((number) => {
       if (number == 1) {
@@ -182,7 +185,7 @@ exports.delete = (req, res) => {
   const id = req.params.id;
 
   User.destroy({
-    where: { id: id },
+    where: { user_id: id },
   })
     .then((number) => {
       if (number == 1) {
