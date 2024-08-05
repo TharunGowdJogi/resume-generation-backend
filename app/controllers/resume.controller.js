@@ -270,8 +270,8 @@ exports.create = async (req, res) => {
         phone_number: user_info.phone_number,
         address: user_info.address,
         linkedin_url: user_info.linkedin_url,
-        portfolio: user_info.portfolio,
-        professional_summary: user_info.professional_summary,
+        website_url: user_info.website_url,
+        summary: user_info.summary,
         mobile: user_info.mobile,
         ai_generated_url: url,
         title: title
@@ -371,8 +371,8 @@ exports.update = async (req, res) => {
         phone_number: user_info.phone_number,
         address: user_info.address,
         linkedin_url: user_info.linkedin_url,
-        portfolio: user_info.portfolio,
-        professional_summary: user_info.professional_summary,
+        website_url: user_info.website_url,
+        summary: user_info.summary,
         mobile: user_info.mobile,
         ai_generated_url: url,
         title: title
