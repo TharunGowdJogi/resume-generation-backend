@@ -31,6 +31,7 @@ db.resume_honor = require("./resume_honor.model.js")(sequelize, Sequelize);
 db.resume_project = require("./resume_project.model.js")(sequelize, Sequelize);
 db.resume_skill = require("./resume_skill.model.js")(sequelize, Sequelize);
 db.resume_comment = require("./resume_comment.model.js")(sequelize, Sequelize);
+db.resume_favorite = require("./resume_favorite.model.js")(sequelize, Sequelize);
 
 // foreign key for session
 db.user.hasMany(db.session,{ as: "session",foreignKey: "user_id" });
@@ -75,5 +76,11 @@ db.resume_comment.belongsTo(db.resume,{ as: "resume" , foreignKey: "resume_id" }
 
 db.user.hasMany(db.resume_comment,{ as: "comments" , foreignKey: "user_id" });
 db.resume_comment.belongsTo(db.user,{ as: "user" ,foreignKey: "user_id" });
+
+db.resume.hasMany(db.resume_favorite,{ as: "favorites" , foreignKey: "resume_id" });
+db.resume_favorite.belongsTo(db.resume,{ as: "resume" , foreignKey: "resume_id" });
+
+db.user.hasMany(db.resume_favorite,{ as: "favorites" , foreignKey: "user_id" });
+db.resume_favorite.belongsTo(db.user,{ as: "user" ,foreignKey: "user_id" });
 
 module.exports = db;

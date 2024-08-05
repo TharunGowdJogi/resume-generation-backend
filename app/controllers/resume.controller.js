@@ -11,6 +11,8 @@ const ResumeEmployment = db.resume_employment;
 const ResumeEducation = db.resume_education;
 const ResumeHonor = db.resume_honor;
 const ResumeProject = db.resume_project;
+const Comment = db.resume_comment;
+const User = db.user;
 const { sequelize } = db;
 const puppeteer = require("puppeteer");
 const fs = require("fs");
@@ -62,6 +64,7 @@ const includeModels = [
   { model: Education, as: "education" },
   { model: Honor, as: "honors" },
   { model: Project, as: "projects" },
+  { model: Comment, as: "comments", include: [{ model: User, as: 'user' }] },
 ];
 
 const cleanAndDeduplicate = (data, uniqueKeyName) => {
@@ -254,6 +257,7 @@ exports.create = async (req, res) => {
       education,
       honors,
       projects,
+      title
     } = req.body;
     console.log("req:", req.body);
     const { url } = await generateAndStoreResume(req.body);
@@ -270,6 +274,7 @@ exports.create = async (req, res) => {
         professional_summary: user_info.professional_summary,
         mobile: user_info.mobile,
         ai_generated_url: url,
+        title: title
       },
       { transaction }
     );
@@ -341,6 +346,7 @@ exports.update = async (req, res) => {
     education,
     honors,
     projects,
+    title
   } = req.body;
   const transaction = await sequelize.transaction();
 
@@ -369,6 +375,7 @@ exports.update = async (req, res) => {
         professional_summary: user_info.professional_summary,
         mobile: user_info.mobile,
         ai_generated_url: url,
+        title: title
       },
       {
         where: { resume_id: id },
