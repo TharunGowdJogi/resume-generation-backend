@@ -174,35 +174,25 @@ const generateAndStoreResume = async (body) => {
   try {
 
     // Construct the prompt
-    const prompt = `Create a detailed and professional resume in HTML and CSS format using the following candidate information and resume templates:
+    let prompt = `Generate a professional resume in HTML and CSS format that exactly matches the layout and design of Template${body.template || 1}.pdf, using the following data:
 
-      Candidate Information:
-      ${JSON.stringify(body, null, 2)}
-
-      Please adhere to these guidelines:
-      1. Select one of the provided resume templates and adapt it to fit the candidate's information.
-      2. Ensure the HTML is semantically correct and the CSS is clean and efficient.
-      3. Use the following font sizes:
-        - 12pt for main section headings (e.g., "Professional Experience", "Educational Background")
-        - 10pt for sub-headings (e.g., job titles, degree names)
-        - 8pt for body text and bullet points
-      4. Choose a professional, easy-to-read font such as Arial, Helvetica, or Calibri.
-      5. Maintain adequate spacing between sections:
-        - Include at least 20px of margin above and below each main section.
-        - Add 10px of margin above and below sub-headings.
-        - Use 5px of margin between bullet points for clarity.
-      6. Use black color for all text to maintain a clean and professional look.
-      7. Avoid any layout that could cause inappropriate page breaks. Ensure that sections fit well together without splitting across pages.
-      8. Ensure the design is responsive and looks good when converted to PDF.
-      9. Include appropriate margins (e.g., 0.5 to 1 inch) to ensure the resume is printable.
-      10. Use bullet points for listing skills, job responsibilities, and achievements.
-      11. Highlight key information such as job titles, company names, and dates.
-      12. Ensure the overall layout is balanced and visually appealing.
-
-      Provide only the HTML and CSS code, starting from the <!DOCTYPE html> declaration and ending with the closing </html> tag. Do not include any explanations or additional text outside of the HTML/CSS code.
-
-      The final result should be a polished, professional-looking resume that accurately represents the provided data and is ready for PDF conversion.`;
-   
+    ${JSON.stringify(body, null, 2)}
+    
+    Please adhere to these guidelines:
+    1. Replicate the exact structure, layout, and design of Template${body.template || 1}.html, adapting it to fit the given data.
+    2. Use the same fonts, font sizes, colors, and styling as seen in Template${body.template || 1}.html .
+    3. Maintain the exact spacing, margins, and overall layout of Template${body.template || 1}.html .
+    4. Ensure the HTML is semantically correct and the CSS is clean and efficient.
+    5. Use bullet points for listing skills, job responsibilities, and achievements, matching the style in Template${body.template || 1}.html .
+    6. Highlight key information such as job titles, company names, and dates in the same manner as Template${body.template || 1}.html .
+    7. Ensure that the overall layout is an exact match to Template${body.template || 1}.html, while accurately representing the provided data.
+    8. Make the design responsive to ensure it looks good when converted to PDF, but prioritize matching the layout of Template${body.template || 1}.html .
+    9. Include appropriate margins to ensure the resume is printable, matching those in Template${body.template || 1}.html .
+    
+    Provide only the HTML and CSS code, starting from the <!DOCTYPE html> declaration and ending with the closing </html> tag. Do not include any explanations or additional text outside of the HTML/CSS code.
+    
+    The final result should be an exact replica of Template${body.template || 1}.html in terms of design and layout, filled with the provided data, and ready for PDF conversion.`;
+    
       console.log("prompt", prompt);
 
     // Use Open AI tool to generate the resume content
